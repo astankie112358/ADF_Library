@@ -18,34 +18,45 @@
 						"referenceName": "AzureDBOConnection",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "SaveToSTG"
 				}
 			],
 			"transformations": [
 				{
-					"name": "derivedColumn1"
+					"name": "AddDateColumn"
 				}
 			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          IDKRAJ as string,",
+				"          KRAJPROD as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> File",
-				"File derive(DateAdded = currentUTC()) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"File derive(DateAdded = currentUTC()) ~> AddDateColumn",
+				"AddDateColumn sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ID as integer,",
-				"          Name as string",
+				"          Name as string,",
+				"          Date_Added as timestamp",
 				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:false,",
+				"     recreate:true,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ID = IDKRAJ,",
+				"          Name = KRAJPROD,",
+				"          Date_Added = DateAdded",
+				"     )) ~> SaveToSTG"
 			]
 		}
 	}
