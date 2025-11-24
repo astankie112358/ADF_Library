@@ -1,0 +1,27 @@
+{
+	"name": "AzureDBOConnection",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDBOConnection",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Country"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

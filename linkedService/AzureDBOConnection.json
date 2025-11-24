@@ -1,0 +1,24 @@
+{
+	"name": "AzureDBOConnection",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "asctest123.database.windows.net",
+			"database": "LibrarySQL",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "app_user",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureLibraryKV",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "LibrarySQLLogin"
+			}
+		}
+	}
+}
