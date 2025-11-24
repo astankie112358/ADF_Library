@@ -86,7 +86,7 @@
 				]
 			},
 			{
-				"name": "Data flow1",
+				"name": "MoveToDatabase",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
