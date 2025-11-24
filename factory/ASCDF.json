@@ -1,0 +1,9 @@
+{
+	"name": "ASCDF",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "bd602ed0-2876-44b6-8bc0-12562a59c3a7",
+		"tenantId": "0fabc88a-2565-420d-9dfe-64f803897c56"
+	}
+}
