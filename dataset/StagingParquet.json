@@ -5,11 +5,20 @@
 			"referenceName": "StgBlobParquet",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"parquetFileName": {
+				"type": "String"
+			}
+		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().parquetFileName",
+					"type": "Expression"
+				},
 				"container": "library"
 			},
 			"compressionCodec": "snappy"
