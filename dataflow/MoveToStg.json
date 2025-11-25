@@ -1,12 +1,12 @@
 {
-	"name": "dataflow1",
+	"name": "MoveToStg",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "StagingParquet",
+						"referenceName": "SourceFileASF",
 						"type": "DatasetReference"
 					},
 					"name": "File"
@@ -27,6 +27,11 @@
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     sourceFolder as string,",
+				"     sourceFileName as string,",
+				"     stgTableName as string",
+				"}",
 				"source(output(",
 				"          IDKRAJ as string,",
 				"          KRAJPROD as string",
@@ -34,7 +39,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> File",
+				"     wildcardPaths:[($sourceFolder+'/'+$sourceFileName)]) ~> File",
 				"File derive(DateAdded = currentUTC()) ~> AddDateColumn",
 				"AddDateColumn sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
