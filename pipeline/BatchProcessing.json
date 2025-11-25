@@ -225,12 +225,15 @@
 												"datasetParameters": {
 													"File": {
 														"parquetFileName": {
-															"value": "@replace(item().name, '.csv', '.parquet')",
+															"value": "@variables('parquetName')",
 															"type": "Expression"
 														}
 													},
 													"SaveToSTG": {
-														"tableName": "replace(item().name, '.csv', '')"
+														"tableName": {
+															"value": "@variables('stgTableName')",
+															"type": "Expression"
+														}
 													}
 												}
 											},
@@ -256,7 +259,7 @@
 							"typeProperties": {
 								"variableName": "parquetName",
 								"value": {
-									"value": "@replace(item().name, '.csv', 'parquet')",
+									"value": "@replace(item().name, '.csv', '.parquet')",
 									"type": "Expression"
 								}
 							}
