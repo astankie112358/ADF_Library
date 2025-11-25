@@ -53,7 +53,26 @@
 						{
 							"name": "MoveDataToDatalake",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "SetParquetName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "SetTableName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "SetFileName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -69,7 +88,7 @@
 										"type": "AzureFileStorageReadSettings",
 										"recursive": true,
 										"wildcardFileName": {
-											"value": "@item().name",
+											"value": "@variables('fileName')",
 											"type": "Expression"
 										},
 										"enablePartitionDiscovery": false
@@ -110,7 +129,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"parquetFileName": {
-											"value": "@replace(item().name, '.csv', '.parquet')",
+											"value": "@variables('parquetName')",
 											"type": "Expression"
 										}
 									}
@@ -140,7 +159,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT 1\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA = 'dbo' \n  AND TABLE_NAME = '@{replace(item().name, '.csv', '')}'",
+										"value": "SELECT 1\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '@{replace(item().name, '.csv', '')}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -151,12 +170,12 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"tableName": {
-											"value": "replace(item().name, '.csv', '')",
+											"value": "@variables('stgTableName')",
 											"type": "Expression"
-										},
-										"schema": "\"dbo\""
+										}
 									}
-								}
+								},
+								"firstRowOnly": false
 							}
 						},
 						{
@@ -173,7 +192,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@not(empty(activity('CheckIfTableExists').output.firstRow))",
+									"value": "@greater(length(activity('CheckIfTableExists').output.value), 0)",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
@@ -211,8 +230,7 @@
 														}
 													},
 													"SaveToSTG": {
-														"tableName": "replace(item().name, '.csv', '')",
-														"schema": "\"dbo\""
+														"tableName": "replace(item().name, '.csv', '')"
 													}
 												}
 											},
@@ -225,11 +243,70 @@
 									}
 								]
 							}
+						},
+						{
+							"name": "SetParquetName",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "parquetName",
+								"value": {
+									"value": "@replace(item().name, '.csv', 'parquet')",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "SetTableName",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "stgTableName",
+								"value": "@replace(item().name, '.csv', '')"
+							}
+						},
+						{
+							"name": "SetFileName",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "fileName",
+								"value": {
+									"value": "@item().name",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
 			}
 		],
+		"variables": {
+			"stgTableName": {
+				"type": "String"
+			},
+			"parquetName": {
+				"type": "String"
+			},
+			"fileName": {
+				"type": "String"
+			}
+		},
 		"annotations": [],
 		"lastPublishTime": "2025-11-24T15:11:12Z"
 	},
