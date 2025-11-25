@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "SourceFileASF",
+						"referenceName": "StagingParquet",
 						"type": "DatasetReference"
 					},
 					"name": "File"
@@ -32,13 +32,10 @@
 				"     sourceFileName as string,",
 				"     stgTableName as string",
 				"}",
-				"source(output(",
-				"          IDKRAJ as string,",
-				"          KRAJPROD as string",
-				"     ),",
-				"     allowSchemaDrift: true,",
+				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
 				"     wildcardPaths:[($sourceFolder+'/'+$sourceFileName)]) ~> File",
 				"File derive(DateAdded = currentUTC()) ~> AddDateColumn",
 				"AddDateColumn sink(allowSchemaDrift: true,",
