@@ -28,9 +28,8 @@
 			],
 			"scriptLines": [
 				"parameters{",
-				"     sourceFolder as string,",
-				"     sourceFileName as string,",
-				"     stgTableName as string",
+				"     stgTableName as string,",
+				"     sourceFileName as string",
 				"}",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -53,12 +52,8 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          ID = IDKRAJ,",
-				"          Name = KRAJPROD,",
-				"          Date_Added = DateAdded",
-				"     )) ~> SaveToSTG"
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SaveToSTG"
 			]
 		}
 	}

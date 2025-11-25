@@ -3,6 +3,36 @@
 	"properties": {
 		"activities": [
 			{
+				"name": "GetFilesInFolder",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "SourceFileASF",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureFileStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
 				"name": "IterateThroughFiles",
 				"type": "ForEach",
 				"dependsOn": [
@@ -13,15 +43,15 @@
 						]
 					}
 				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('GetFilesInFolder').output.childItems",
 						"type": "Expression"
 					},
-					"isSequential": false,
 					"activities": [
 						{
-							"name": "CopyFiles",
+							"name": "MoveDataToDatalake",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -38,6 +68,10 @@
 									"storeSettings": {
 										"type": "AzureFileStorageReadSettings",
 										"recursive": true,
+										"wildcardFileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
 										"enablePartitionDiscovery": false
 									},
 									"formatSettings": {
@@ -82,35 +116,106 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "CheckIfTableExists",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "MoveDataToDatalake",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT 1\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA = 'dbo' \n  AND TABLE_NAME = '@{replace(item().name, '.csv', '')}'",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "AzureDBOConnection",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "CheckIfTableExists",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(length(activity('CheckIfTableExists').output.value), 0)",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Data flow1",
+										"type": "ExecuteDataFlow",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"dataflow": {
+												"referenceName": "MoveToStg",
+												"type": "DataFlowReference",
+												"parameters": {
+													"stgTableName": {
+														"value": "'@{replace(item().name, '.csv', '')}'",
+														"type": "Expression"
+													},
+													"sourceFileName": {
+														"value": "'@{replace(item().name, '.csv', '.parquet')}'",
+														"type": "Expression"
+													}
+												},
+												"datasetParameters": {
+													"File": {
+														"parquetFileName": {
+															"value": "@replace(item().name, '.csv', '.parquet')",
+															"type": "Expression"
+														}
+													}
+												}
+											},
+											"compute": {
+												"coreCount": 8,
+												"computeType": "General"
+											},
+											"traceLevel": "Fine"
+										}
+									}
+								]
+							}
 						}
 					]
-				}
-			},
-			{
-				"name": "GetFilesInFolder",
-				"type": "GetMetadata",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataset": {
-						"referenceName": "SourceFileASF",
-						"type": "DatasetReference"
-					},
-					"fieldList": [],
-					"storeSettings": {
-						"type": "AzureFileStorageReadSettings",
-						"enablePartitionDiscovery": false
-					},
-					"formatSettings": {
-						"type": "DelimitedTextReadSettings"
-					}
 				}
 			}
 		],
