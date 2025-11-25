@@ -148,7 +148,13 @@
 								},
 								"dataset": {
 									"referenceName": "AzureDBOConnection",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"tableName": {
+											"value": "replace(item().name, '.csv', '')",
+											"type": "Expression"
+										}
+									}
 								}
 							}
 						},
