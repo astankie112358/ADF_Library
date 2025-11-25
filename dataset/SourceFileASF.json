@@ -5,6 +5,11 @@
 			"referenceName": "StorageSource",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"sourceFileName": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
