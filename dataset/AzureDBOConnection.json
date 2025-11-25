@@ -7,10 +7,12 @@
 		},
 		"parameters": {
 			"tableName": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "Countries"
 			},
 			"schema": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "dbo"
 			}
 		},
 		"annotations": [],
