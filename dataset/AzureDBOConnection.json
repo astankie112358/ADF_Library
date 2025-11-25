@@ -11,9 +11,6 @@
 			},
 			"schema": {
 				"type": "string"
-			},
-			"fileName": {
-				"type": "string"
 			}
 		},
 		"annotations": [],

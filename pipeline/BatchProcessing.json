@@ -202,13 +202,9 @@
 						{
 							"name": "CreateNewTableForFails",
 							"type": "Copy",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [
-								{
-									"activity": "MoveDataToStg",
-									"dependencyConditions": [
-										"Failed"
-									]
-								},
 								{
 									"activity": "FindNewName",
 									"dependencyConditions": [
@@ -327,14 +323,9 @@
 						{
 							"name": "FindNewName",
 							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "MoveDataToStg",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"state": "Inactive",
+							"onInactiveMarkAs": "Failed",
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -362,8 +353,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"tableName": "dbo",
-										"schema": "FileToTableMapping",
-										"fileName": "fileName"
+										"schema": "FileToTableMapping"
 									}
 								},
 								"firstRowOnly": true
