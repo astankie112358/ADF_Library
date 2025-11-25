@@ -137,117 +137,6 @@
 							]
 						},
 						{
-							"name": "CheckIfTableExists",
-							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "MoveDataToDatalake",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "SELECT 1\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = '@{replace(item().name, '.csv', '')}'",
-										"type": "Expression"
-									},
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
-								},
-								"dataset": {
-									"referenceName": "AzureDBOConnection",
-									"type": "DatasetReference",
-									"parameters": {
-										"tableName": {
-											"value": "@variables('stgTableName')",
-											"type": "Expression"
-										}
-									}
-								},
-								"firstRowOnly": false
-							}
-						},
-						{
-							"name": "If Condition1",
-							"type": "IfCondition",
-							"dependsOn": [
-								{
-									"activity": "CheckIfTableExists",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@greater(length(activity('CheckIfTableExists').output.value), 0)",
-									"type": "Expression"
-								},
-								"ifTrueActivities": [
-									{
-										"name": "Data flow1",
-										"type": "ExecuteDataFlow",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"dataflow": {
-												"referenceName": "MoveToStg",
-												"type": "DataFlowReference",
-												"parameters": {
-													"stgTableName": {
-														"value": "'@{replace(item().name, '.csv', '')}'",
-														"type": "Expression"
-													},
-													"sourceFileName": {
-														"value": "'@{replace(item().name, '.csv', '.parquet')}'",
-														"type": "Expression"
-													}
-												},
-												"datasetParameters": {
-													"File": {
-														"parquetFileName": {
-															"value": "@variables('parquetName')",
-															"type": "Expression"
-														}
-													},
-													"SaveToSTG": {
-														"tableName": {
-															"value": "@variables('stgTableName')",
-															"type": "Expression"
-														}
-													}
-												}
-											},
-											"compute": {
-												"coreCount": 8,
-												"computeType": "General"
-											},
-											"traceLevel": "Fine"
-										}
-									}
-								]
-							}
-						},
-						{
 							"name": "SetParquetName",
 							"type": "SetVariable",
 							"dependsOn": [],
@@ -294,6 +183,79 @@
 									"type": "Expression"
 								}
 							}
+						},
+						{
+							"name": "MoveDataToStg",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "MoveDataToDatalake",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ParquetSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "ParquetReadSettings"
+									}
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate",
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "StagingParquet",
+									"type": "DatasetReference",
+									"parameters": {
+										"parquetFileName": {
+											"value": "@variables('parquetName')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureDBOConnection",
+									"type": "DatasetReference",
+									"parameters": {
+										"tableName": {
+											"value": "@replace(item().name, '.csv', '')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
