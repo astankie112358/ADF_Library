@@ -1,5 +1,5 @@
 {
-	"name": "MoveToStg",
+	"name": "MoveToDBO",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -23,14 +23,10 @@
 			],
 			"transformations": [
 				{
-					"name": "AddDateColumn"
+					"name": "AddID"
 				}
 			],
 			"scriptLines": [
-				"parameters{",
-				"     stgTableName as string,",
-				"     sourceFileName as string",
-				"}",
 				"source(output(",
 				"          ID as integer,",
 				"          Name as string,",
@@ -41,8 +37,10 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table',",
 				"     wildcardPaths:[($sourceFileName)]) ~> StagingTable",
-				"StagingTable derive(DateAdded = currentUTC()) ~> AddDateColumn",
-				"AddDateColumn sink(allowSchemaDrift: true,",
+				"StagingTable keyGenerate(output(ID as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> AddID",
+				"AddID sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          ID as integer,",

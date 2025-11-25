@@ -283,7 +283,7 @@
 							]
 						},
 						{
-							"name": "FindNewName",
+							"name": "FindMapping",
 							"type": "Lookup",
 							"dependsOn": [
 								{
@@ -300,29 +300,69 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": [
-								{
-									"name": "FileNameParam"
-								}
-							],
+							"userProperties": [],
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT FileName, TableName\nFROM FileToTableMapping\nWHERE FileName = 'item()'",
+										"value": "SELECT TableName \nFROM FileToTableMapping \nWHERE FileName = '@{item().name}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
 								"dataset": {
-									"referenceName": "LookupTable",
+									"referenceName": "AzureDBOConnection",
 									"type": "DatasetReference",
 									"parameters": {
-										"FileName": "@replace(item().name, '.csv', '')"
+										"tableName": "FileToTableMapping",
+										"schema": "dbo"
+									}
+								}
+							}
+						},
+						{
+							"name": "MoveToStg",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "FindMapping",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "MoveToDBO",
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"StagingTable": {
+											"tableName": "@replace(item().name, '.csv', '')",
+											"schema": "stg"
+										},
+										"SaveToDBO": {
+											"tableName": {
+												"value": "@activity('FindMapping').output.firstRow.TableName",
+												"type": "Expression"
+											},
+											"schema": "dbo"
+										}
 									}
 								},
-								"firstRowOnly": true
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
 							}
 						}
 					]
