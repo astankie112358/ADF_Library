@@ -6,10 +6,10 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "StagingParquet",
+						"referenceName": "AzureDBOConnection",
 						"type": "DatasetReference"
 					},
-					"name": "File"
+					"name": "StagingTable"
 				}
 			],
 			"sinks": [
@@ -18,7 +18,7 @@
 						"referenceName": "AzureDBOConnection",
 						"type": "DatasetReference"
 					},
-					"name": "SaveToSTG"
+					"name": "SaveToDBO"
 				}
 			],
 			"transformations": [
@@ -31,12 +31,17 @@
 				"     stgTableName as string,",
 				"     sourceFileName as string",
 				"}",
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          ID as integer,",
+				"          Name as string,",
+				"          Date_Added as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet',",
-				"     wildcardPaths:[($sourceFileName)]) ~> File",
-				"File derive(DateAdded = currentUTC()) ~> AddDateColumn",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     wildcardPaths:[($sourceFileName)]) ~> StagingTable",
+				"StagingTable derive(DateAdded = currentUTC()) ~> AddDateColumn",
 				"AddDateColumn sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -52,7 +57,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> SaveToSTG"
+				"     errorHandlingOption: 'stopOnFirstError') ~> SaveToDBO"
 			]
 		}
 	}

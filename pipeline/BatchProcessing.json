@@ -208,6 +208,12 @@
 									"dependencyConditions": [
 										"Failed"
 									]
+								},
+								{
+									"activity": "FindNewName",
+									"dependencyConditions": [
+										"Failed"
+									]
 								}
 							],
 							"policy": {
@@ -221,6 +227,15 @@
 							"typeProperties": {
 								"source": {
 									"type": "ParquetSource",
+									"additionalColumns": [
+										{
+											"name": "Error",
+											"value": {
+												"value": "@activity('MoveDataToStg').output.error",
+												"type": "Expression"
+											}
+										}
+									],
 									"storeSettings": {
 										"type": "AzureBlobStorageReadSettings",
 										"recursive": true,
@@ -276,6 +291,42 @@
 						{
 							"name": "MoveToDBO",
 							"type": "ExecuteDataFlow",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "MoveToStg",
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"StagingTable": {
+											"tableName": "@replace(item().name, '.csv', '')",
+											"schema": "stg"
+										},
+										"SaveToDBO": {
+											"tableName": "@replace(item().name, '.csv', '')",
+											"schema": "dbo"
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						},
+						{
+							"name": "FindNewName",
+							"type": "Lookup",
 							"dependsOn": [
 								{
 									"activity": "MoveDataToStg",
@@ -291,17 +342,31 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": [],
+							"userProperties": [
+								{
+									"name": "FileNameParam"
+								}
+							],
 							"typeProperties": {
-								"dataflow": {
-									"referenceName": "MoveToStg",
-									"type": "DataFlowReference"
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT FileName, TableName\nFROM FileToTableMapping\nWHERE FileName = @fileName",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
 								},
-								"compute": {
-									"coreCount": 8,
-									"computeType": "General"
+								"dataset": {
+									"referenceName": "AzureDBOConnection",
+									"type": "DatasetReference",
+									"parameters": {
+										"tableName": "dbo",
+										"schema": "FileToTableMapping",
+										"fileName": "fileName"
+									}
 								},
-								"traceLevel": "Fine"
+								"firstRowOnly": true
 							}
 						}
 					]
