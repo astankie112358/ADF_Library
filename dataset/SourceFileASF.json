@@ -9,12 +9,12 @@
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
-				"type": "AzureFileStorageLocation"
+				"type": "AzureFileStorageLocation",
+				"folderPath": "inputfolder"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
-			"quoteChar": "\"",
-			"folderPath": "inputfolder"
+			"quoteChar": "\""
 		},
 		"schema": []
 	}
