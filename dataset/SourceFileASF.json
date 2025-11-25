@@ -13,19 +13,9 @@
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
-			"firstRowAsHeader": true,
-			"quoteChar": "\""
+			"quoteChar": "\"",
+			"folderPath": "inputfolder"
 		},
-		"schema": [
-			{
-				"name": "IDKRAJ",
-				"type": "String"
-			},
-			{
-				"name": "KRAJPROD",
-				"type": "String"
-			}
-		]
-	},
-	"type": "Microsoft.DataFactory/factories/datasets"
+		"schema": []
+	}
 }
