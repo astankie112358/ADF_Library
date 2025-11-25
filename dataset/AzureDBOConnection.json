@@ -8,6 +8,9 @@
 		"parameters": {
 			"tableName": {
 				"type": "String"
+			},
+			"schema": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -30,7 +33,10 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "stg",
+			"schema": {
+				"value": "@dataset().schema",
+				"type": "Expression"
+			},
 			"table": {
 				"value": "@dataset().tableName",
 				"type": "Expression"

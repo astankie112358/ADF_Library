@@ -53,26 +53,7 @@
 						{
 							"name": "MoveDataToDatalake",
 							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "SetParquetName",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								},
-								{
-									"activity": "SetTableName",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								},
-								{
-									"activity": "SetFileName",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -88,7 +69,7 @@
 										"type": "AzureFileStorageReadSettings",
 										"recursive": true,
 										"wildcardFileName": {
-											"value": "@variables('fileName')",
+											"value": "@item().name",
 											"type": "Expression"
 										},
 										"enablePartitionDiscovery": false
@@ -129,60 +110,12 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"parquetFileName": {
-											"value": "@variables('parquetName')",
+											"value": "@replace(item().name, '.csv', '.parquet')",
 											"type": "Expression"
 										}
 									}
 								}
 							]
-						},
-						{
-							"name": "SetParquetName",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "parquetName",
-								"value": {
-									"value": "@replace(item().name, '.csv', '.parquet')",
-									"type": "Expression"
-								}
-							}
-						},
-						{
-							"name": "SetTableName",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "stgTableName",
-								"value": "@replace(item().name, '.csv', '')"
-							}
-						},
-						{
-							"name": "SetFileName",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "fileName",
-								"value": {
-									"value": "@item().name",
-									"type": "Expression"
-								}
-							}
 						},
 						{
 							"name": "MoveDataToStg",
@@ -238,7 +171,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"parquetFileName": {
-											"value": "@variables('parquetName')",
+											"value": "@replace(item().name, '.csv', '.parquet')",
 											"type": "Expression"
 										}
 									}
@@ -252,7 +185,8 @@
 										"tableName": {
 											"value": "@replace(item().name, '.csv', '')",
 											"type": "Expression"
-										}
+										},
+										"schema": "stg"
 									}
 								}
 							]
