@@ -35,7 +35,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     wildcardPaths:[($sourceFolder+'/'+$sourceFileName)]) ~> File",
+				"     wildcardPaths:[($sourceFileName)]) ~> File",
 				"File derive(DateAdded = currentUTC()) ~> AddDateColumn",
 				"AddDateColumn sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
