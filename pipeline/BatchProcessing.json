@@ -173,7 +173,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@greater(length(activity('CheckIfTableExists').output.value), 0)",
+									"value": "@not(empty(activity('CheckIfTableExists').output.firstRow))",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
