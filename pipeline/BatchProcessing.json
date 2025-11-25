@@ -223,11 +223,8 @@
 									"type": "ParquetSource",
 									"additionalColumns": [
 										{
-											"name": "Error",
-											"value": {
-												"value": "@activity('MoveDataToStg').output.error",
-												"type": "Expression"
-											}
+											"name": "",
+											"value": ""
 										}
 									],
 									"storeSettings": {
