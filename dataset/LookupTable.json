@@ -1,0 +1,30 @@
+{
+	"name": "LookupTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDBOConnection",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FileName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "FileName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TableName",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "FileToTableMapping"
+		}
+	}
+}
