@@ -309,7 +309,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT FileName, TableName\nFROM FileToTableMapping\nWHERE FileName = @item()",
+										"value": "SELECT FileName, TableName\nFROM FileToTableMapping\nWHERE FileName = 'item()'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
